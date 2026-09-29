@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{
+    --kimi-font-sans:"Microsoft YaHei","PingFang SC",sans-serif;
+    --kimi-color-text-primary:#1f2329; --kimi-color-text-secondary:#646a73;
+    --kimi-color-text-tertiary:#8f959e; --kimi-color-text-quaternary:#bbbbbb;
+    --kimi-color-border:#dee0e3; --kimi-color-surface-muted:#f2f3f5;
+    --kimi-chart-1:#3370ff; --kimi-color-accent:#0e7c86;
+    --kimi-color-positive:#2ea44f; --kimi-color-warning:#e1912e; --kimi-color-danger:#d83931;
+    --kimi-radius-panel:8px; --kimi-radius-small:4px; --kimi-radius-full:999px;
+    --kimi-space-1:4px; --kimi-space-2:8px; --kimi-space-3:12px; --kimi-space-4:16px; --kimi-space-5:24px;
+    --t-slow:.6s; --ease-out:cubic-bezier(.2,.8,.3,1);
+  }
+  body{background:#fff;margin:0;}
+
+  .slw { font-family: var(--kimi-font-sans, sans-serif); color: var(--kimi-color-text-primary);
+    padding: var(--kimi-space-4); display: flex; flex-direction: column; gap: var(--kimi-space-4); }
+  .slw svg text { font-family: var(--kimi-font-sans, sans-serif); }
+  .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+  .sl-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--kimi-space-3); flex-wrap: wrap; }
+  .sl-title { font-size: 17px; font-weight: 500; }
+  .sl-meta { font-size: 12px; color: var(--kimi-color-text-tertiary); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: var(--kimi-space-3); }
+  .kpi { border: 1px solid var(--kimi-color-border); border-radius: var(--kimi-radius-panel); padding: var(--kimi-space-3); }
+  .kpi .l { font-size: 12px; color: var(--kimi-color-text-secondary); }
+  .kpi .v { font-size: 24px; font-weight: 500; line-height: 1.3; }
+  .kpi .v small { font-size: 12px; color: var(--kimi-color-text-tertiary); font-weight: 400; }
+  .kpi .s { font-size: 12px; color: var(--kimi-color-text-tertiary); }
+  .sect { font-size: 14px; font-weight: 500; color: var(--kimi-color-text-secondary); margin-bottom: var(--kimi-space-2); }
+  .trend { display: flex; align-items: flex-end; gap: 6px; height: 168px; padding-top: var(--kimi-space-2); }
+  .tcol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; height: 100%; justify-content: flex-end; }
+  .tbar { width: 70%; max-width: 42px; border-radius: var(--kimi-radius-small) var(--kimi-radius-small) 0 0;
+    background: var(--kimi-chart-1); height: 0; transition: height var(--t-slow) var(--ease-out); }
+  .tbar.cur { background: var(--kimi-color-accent); }
+  .tval { font-size: 10px; color: var(--kimi-color-text-tertiary); white-space: nowrap; }
+  .tmr { font-size: 10px; color: var(--kimi-color-positive); white-space: nowrap; }
+  .tmon { font-size: 10px; color: var(--kimi-color-text-tertiary); white-space: nowrap; }
+  .corow { display: grid; grid-template-columns: 72px 1fr 104px; align-items: center; gap: var(--kimi-space-2); font-size: 12px; margin-bottom: var(--kimi-space-2); }
+  .corow .name { color: var(--kimi-color-text-secondary); }
+  .corow .amt { text-align: right; }
+  .corow .mr { color: var(--kimi-color-text-tertiary); font-size: 11px; }
+  .ctrack { height: 12px; border-radius: var(--kimi-radius-small); background: var(--kimi-color-surface-muted); overflow: hidden; }
+  .cfill { height: 100%; width: 0; border-radius: var(--kimi-radius-small); background: var(--kimi-chart-1);
+    transition: width var(--t-slow) var(--ease-out); }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--kimi-space-4); }
+  @media (max-width: 640px) { .cols2 { grid-template-columns: 1fr; } }
+  .rk { display: flex; flex-direction: column; gap: var(--kimi-space-2); }
+  .rkrow { display: grid; grid-template-columns: 20px minmax(0,1.5fr) 1.6fr 64px; align-items: center; gap: var(--kimi-space-2); font-size: 12px; }
+  .rkrow .no { color: var(--kimi-color-text-quaternary); }
+  .rkrow .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rkrow .sub { color: var(--kimi-color-text-tertiary); font-size: 11px; }
+  .rkrow .amt { text-align: right; }
+  .foot { font-size: 11px; color: var(--kimi-color-text-tertiary); line-height: 1.6;
+    border-top: 1px solid var(--kimi-color-border); padding-top: var(--kimi-space-2); }
+  .empty { font-size: 14px; color: var(--kimi-color-text-tertiary); padding: var(--kimi-space-5) 0; text-align: center; }
+  .fadein { animation: slfade var(--t-slow) var(--ease-out) both; }
+  @keyframes slfade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div class="slw" id="root"><div class="empty">等待首次数据同步…</div></div>
+<script>
+(function(){
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function wan(v){ return (v/10000).toFixed(1); }
+  function yi(v){ return (v/100000000).toFixed(2); }
+
+  function rankList(items){
+    if (!items.length) return '<div class="sl-meta">暂无数据</div>';
+    var max = items[0].total || 1, h = '<div class="rk">';
+    items.forEach(function(it, i){
+      h += '<div class="rkrow"><span class="no num">'+(i+1)+'</span>' +
+        '<div class="nm">'+esc(it.name)+'<div class="sub">'+esc(it.company)+' · '+it.bills+' 单 · 毛利率 '+it.margin_rate+'%</div></div>' +
+        '<div class="ctrack"><div class="cfill" data-w="'+(it.total/max*100)+'"></div></div>' +
+        '<div class="amt num">'+wan(it.total)+'</div></div>';
+    });
+    return h + '</div>';
+  }
+
+  function render(main){
+    var root = document.getElementById('root');
+    var D = main && main.sales;
+    if (!D || !D.kpi) { root.innerHTML = '<div class="empty">等待首次数据同步…</div>'; return; }
+    var k = D.kpi, h = '';
+
+    h += '<div class="sl-head fadein"><div class="sl-title">销售概览看板 · 某连锁健康集团（脱敏演示数据）</div>' +
+      '<div class="sl-meta">基准日 ' + esc(D.as_of) + ' ｜ 已审核出库单，关联公司已剔除 ｜ 毛利=未税金额−出库成本</div></div>';
+
+    h += '<div class="kpis fadein">' +
+      '<div class="kpi"><div class="l">本月销售（'+esc(k.cur_month)+'）</div><div class="v num">'+wan(k.cur_amt)+'<small> 万</small></div><div class="s">'+k.cur_bills+' 张出库单</div></div>' +
+      '<div class="kpi"><div class="l">2026 年销售</div><div class="v num">'+wan(k.ytd)+'<small> 万</small></div><div class="s">YTD 价税合计</div></div>' +
+      '<div class="kpi"><div class="l">2026 年毛利</div><div class="v num" style="color:var(--kimi-color-positive)">'+wan(k.ytd_margin)+'<small> 万</small></div><div class="s">毛利率 '+k.ytd_margin_rate+'%</div></div>' +
+      '<div class="kpi"><div class="l">历史累计销售</div><div class="v num">'+yi(k.total)+'<small> 亿</small></div><div class="s">'+k.bills.toLocaleString()+' 单 · 自 2023-11</div></div>' +
+      '<div class="kpi"><div class="l">历史累计毛利</div><div class="v num" style="color:var(--kimi-color-positive)">'+yi(k.margin)+'<small> 亿</small></div><div class="s">毛利率 '+k.margin_rate+'%</div></div></div>';
+
+    var rec = D.recent || [];
+    var maxM = Math.max.apply(null, rec.map(function(m){ return m.total; }).concat([1]));
+    h += '<div class="fadein"><div class="sect">近 12 个月销售趋势（柱=销售额万元，绿字=毛利率）</div><div class="trend">';
+    rec.forEach(function(m){
+      var cur = m.month === k.cur_month;
+      var mr = cur ? '未结转' : (m.margin_rate + '%');
+      h += '<div class="tcol" title="'+m.month+'：销售 '+wan(m.total)+' 万，毛利 '+wan(m.margin||0)+' 万（'+mr+'）">' +
+        '<div class="tval num">'+wan(m.total)+'</div>' +
+        '<div class="tbar'+(cur?' cur':'')+'" data-h="'+Math.max(m.total/maxM*100,2)+'"></div>' +
+        '<div class="tmon">'+m.month.slice(2)+'</div><div class="tmr num">'+mr+'</div></div>';
+    });
+    h += '</div></div>';
+
+    h += '<div class="fadein"><div class="sect">分账套累计销售（万元，右为毛利率）</div>';
+    var cos = D.companies.map(function(c){ return { name: c, v: D.by_company[c] }; })
+      .sort(function(a,b){ return b.v.total - a.v.total; });
+    var maxC = cos.length ? cos[0].v.total : 1;
+    cos.forEach(function(it){
+      h += '<div class="corow"><div class="name">'+esc(it.name)+'</div>' +
+        '<div class="ctrack"><div class="cfill" data-w="'+(it.v.total/maxC*100)+'"></div></div>' +
+        '<div class="amt num">'+wan(it.v.total)+' <span class="mr num">'+it.v.margin_rate+'%</span></div></div>';
+    });
+    h += '</div>';
+
+    h += '<div class="cols2 fadein">' +
+      '<div><div class="sect">TOP 客户（近 12 个月，万元）</div>'+rankList(D.top_customers||[])+'</div>' +
+      '<div><div class="sect">TOP 业务员（近 12 个月，万元）</div>'+rankList(D.top_emps||[])+'</div></div>';
+
+    h += '<div class="foot">口径：金蝶销售出库单（已审核）价税合计；关联公司内部交易 '+yi(k.excluded_related)+' 亿已剔除。' +
+      '毛利=未税金额−出库成本；当月出库成本月末结转，故当月毛利率显示"未结转"（本月 '+k.uncosted_bills+' 单待结转）；2023 年部分老单无成本核算，累计毛利率约偏高 1–2 个点。</div>';
+
+    root.innerHTML = h;
+    var apply = function(){
+      root.querySelectorAll('.cfill').forEach(function(el){ el.style.width = el.dataset.w + '%'; });
+      root.querySelectorAll('.tbar').forEach(function(el){ el.style.height = el.dataset.h + '%'; });
+    };
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(function(){ requestAnimationFrame(apply); });
+    } else { apply(); }
+  }
+
+  var DEMO = {"as_of": "2026-09-20", "kpi": {"cur_month": "2026-09", "cur_amt": 8600000, "cur_bills": 318, "ytd": 68400000, "ytd_margin": 21100000, "ytd_margin_rate": 30.8, "total": 185200000, "bills": 12483, "margin": 57100000, "margin_rate": 30.8, "excluded_related": 42300000, "uncosted_bills": 46}, "recent": [{"month": "2025-10", "total": 5900000, "margin": 1820000, "margin_rate": 30.8}, {"month": "2025-11", "total": 6400000, "margin": 1950000, "margin_rate": 30.5}, {"month": "2025-12", "total": 7800000, "margin": 2430000, "margin_rate": 31.2}, {"month": "2026-01", "total": 5200000, "margin": 1580000, "margin_rate": 30.4}, {"month": "2026-02", "total": 4100000, "margin": 1230000, "margin_rate": 30.0}, {"month": "2026-03", "total": 6900000, "margin": 2140000, "margin_rate": 31.0}, {"month": "2026-04", "total": 7300000, "margin": 2260000, "margin_rate": 31.0}, {"month": "2026-05", "total": 7600000, "margin": 2360000, "margin_rate": 31.1}, {"month": "2026-06", "total": 8100000, "margin": 2520000, "margin_rate": 31.1}, {"month": "2026-07", "total": 7900000, "margin": 2420000, "margin_rate": 30.6}, {"month": "2026-08", "total": 8400000, "margin": 2590000, "margin_rate": 30.8}, {"month": "2026-09", "total": 8600000, "margin": 0, "margin_rate": 0}], "companies": ["华东公司", "西南公司", "华南公司", "海外子公司"], "by_company": {"华东公司": {"total": 72400000, "margin_rate": 31.5}, "西南公司": {"total": 56800000, "margin_rate": 30.2}, "华南公司": {"total": 38100000, "margin_rate": 30.9}, "海外子公司": {"total": 17900000, "margin_rate": 28.4}}, "top_customers": [{"name": "某连锁医美集团A", "company": "华东公司", "bills": 86, "total": 12800000, "margin_rate": 32.1}, {"name": "某医美机构B", "company": "西南公司", "bills": 64, "total": 9300000, "margin_rate": 31.4}, {"name": "某连锁机构C", "company": "华南公司", "bills": 52, "total": 7600000, "margin_rate": 30.2}, {"name": "某医美医院D", "company": "西南公司", "bills": 47, "total": 6800000, "margin_rate": 29.8}, {"name": "某机构客户E", "company": "华东公司", "bills": 39, "total": 5400000, "margin_rate": 31.9}], "top_emps": [{"name": "业务员A", "company": "华东公司", "bills": 152, "total": 19600000, "margin_rate": 31.2}, {"name": "业务员B", "company": "西南公司", "bills": 131, "total": 15800000, "margin_rate": 30.6}, {"name": "业务员C", "company": "华南公司", "bills": 118, "total": 12400000, "margin_rate": 30.9}, {"name": "业务员D", "company": "海外子公司", "bills": 64, "total": 9600000, "margin_rate": 28.7}, {"name": "业务员E", "company": "华东公司", "bills": 97, "total": 8800000, "margin_rate": 31.5}]};
+  render({ sales: DEMO });
+})();
+</script>
+</body>
+</html>

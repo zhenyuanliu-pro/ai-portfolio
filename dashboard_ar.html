@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{
+    --kimi-font-sans:"Microsoft YaHei","PingFang SC",sans-serif;
+    --kimi-color-text-primary:#1f2329; --kimi-color-text-secondary:#646a73;
+    --kimi-color-text-tertiary:#8f959e; --kimi-color-text-quaternary:#bbbbbb;
+    --kimi-color-border:#dee0e3; --kimi-color-surface-muted:#f2f3f5;
+    --kimi-chart-1:#3370ff; --kimi-color-accent:#0e7c86;
+    --kimi-color-positive:#2ea44f; --kimi-color-warning:#e1912e; --kimi-color-danger:#d83931;
+    --kimi-radius-panel:8px; --kimi-radius-small:4px; --kimi-radius-full:999px;
+    --kimi-space-1:4px; --kimi-space-2:8px; --kimi-space-3:12px; --kimi-space-4:16px; --kimi-space-5:24px;
+    --t-slow:.6s; --ease-out:cubic-bezier(.2,.8,.3,1);
+  }
+  body{background:#fff;margin:0;}
+
+  .arw { font-family: var(--kimi-font-sans, sans-serif); color: var(--kimi-color-text-primary);
+    padding: var(--kimi-space-4); display: flex; flex-direction: column; gap: var(--kimi-space-4); }
+  .arw button, .arw input { font: inherit; }
+  .arw svg text { font-family: var(--kimi-font-sans, sans-serif); }
+  .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+  .ar-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--kimi-space-3); flex-wrap: wrap; }
+  .ar-title { font-size: 17px; font-weight: 500; }
+  .ar-meta { font-size: 12px; color: var(--kimi-color-text-tertiary); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--kimi-space-3); }
+  .kpi { border: 1px solid var(--kimi-color-border); border-radius: var(--kimi-radius-panel); padding: var(--kimi-space-3); }
+  .kpi .l { font-size: 12px; color: var(--kimi-color-text-secondary); }
+  .kpi .v { font-size: 26px; font-weight: 500; line-height: 1.3; }
+  .kpi .v small { font-size: 12px; color: var(--kimi-color-text-tertiary); font-weight: 400; }
+  .kpi .s { font-size: 12px; color: var(--kimi-color-text-tertiary); }
+  .danger-text { color: var(--kimi-color-danger); }
+  .warn-text { color: var(--kimi-color-warning); }
+  .sect { font-size: 14px; font-weight: 500; color: var(--kimi-color-text-secondary); margin-bottom: var(--kimi-space-2); }
+  .bars { display: flex; flex-direction: column; gap: var(--kimi-space-2); }
+  .brow { display: grid; grid-template-columns: 72px 1fr 64px; align-items: center; gap: var(--kimi-space-2); font-size: 12px; }
+  .brow .name { color: var(--kimi-color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .brow .amt { text-align: right; color: var(--kimi-color-text-secondary); }
+  .track { display: flex; height: 14px; border-radius: var(--kimi-radius-small); overflow: hidden;
+    background: var(--kimi-color-surface-muted); }
+  .seg { height: 100%; width: 0; transition: width var(--t-slow) var(--ease-out); }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--kimi-space-2) var(--kimi-space-3); font-size: 12px;
+    color: var(--kimi-color-text-tertiary); margin-top: var(--kimi-space-2); }
+  .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; }
+  .gauges { display: flex; gap: var(--kimi-space-3); justify-content: space-around; flex-wrap: wrap; }
+  .gauge { text-align: center; }
+  .gauge .gl { font-size: 12px; color: var(--kimi-color-text-secondary); margin-top: var(--kimi-space-1); }
+  .gauge path.arc { transition: stroke-dashoffset var(--t-slow) var(--ease-out); }
+  .clist { display: flex; flex-direction: column; gap: var(--kimi-space-2); }
+  .crow { display: grid; grid-template-columns: 10px minmax(0,1.4fr) 2fr 64px; align-items: center; gap: var(--kimi-space-2); font-size: 12px; }
+  .crow .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .crow .sub { color: var(--kimi-color-text-tertiary); font-size: 11px; }
+  .crow .amt { text-align: right; }
+  .ctrack { height: 10px; border-radius: var(--kimi-radius-small); background: var(--kimi-color-surface-muted); overflow: hidden; }
+  .cfill { height: 100%; width: 0; border-radius: var(--kimi-radius-small); transition: width var(--t-slow) var(--ease-out); }
+  .dot { width: 8px; height: 8px; border-radius: var(--kimi-radius-full); display: inline-block; }
+  .d-red { background: var(--kimi-color-danger); } .d-yel { background: var(--kimi-color-warning); } .d-grn { background: var(--kimi-color-positive); }
+  .arw table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .arw th { text-align: left; font-weight: 500; color: var(--kimi-color-text-secondary); padding: var(--kimi-space-1) var(--kimi-space-2);
+    border-bottom: 1px solid var(--kimi-color-border); }
+  .arw td { padding: var(--kimi-space-1) var(--kimi-space-2); border-bottom: 1px solid var(--kimi-color-border); color: var(--kimi-color-text-primary); }
+  .arw td.r, .arw th.r { text-align: right; }
+  .foot { font-size: 11px; color: var(--kimi-color-text-tertiary); line-height: 1.6;
+    border-top: 1px solid var(--kimi-color-border); padding-top: var(--kimi-space-2); }
+  .empty { font-size: 14px; color: var(--kimi-color-text-tertiary); padding: var(--kimi-space-5) 0; text-align: center; }
+  .fadein { animation: arfade var(--t-slow) var(--ease-out) both; }
+  @keyframes arfade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div class="arw" id="root"><div class="empty">等待首次数据同步…</div></div>
+<script>
+(function(){
+  var BUCKET_COLORS = ['25%','40%','55%','70%','85%','100%'];
+  function token(n, fb){ try { var v = window.DaimonWidget && window.DaimonWidget.getToken && window.DaimonWidget.getToken(n); return v || fb; } catch(e){ return fb; } }
+  function bucketColor(i){
+    if (i === 5) return 'var(--kimi-color-danger)';
+    return 'color-mix(in srgb, var(--kimi-chart-1) ' + BUCKET_COLORS[i] + ', transparent)';
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function wan(v){ return (v/10000).toFixed(1); }
+
+  function gaugeSvg(rate){
+    var R = 34, C = 2*Math.PI*R, frac = Math.min(rate,100)/100;
+    var col = rate > 80 ? 'var(--kimi-color-danger)' : rate > 50 ? 'var(--kimi-color-warning)' : 'var(--kimi-color-positive)';
+    var off = C * (1 - frac);
+    return '<svg width="92" height="92" viewBox="0 0 92 92">' +
+      '<circle cx="46" cy="46" r="'+R+'" fill="none" stroke="var(--kimi-color-surface-muted)" stroke-width="8"/>' +
+      '<circle class="arc" cx="46" cy="46" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="8" stroke-linecap="round"' +
+      ' stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'" data-off="'+off+'" transform="rotate(-90 46 46)"/>' +
+      '<text x="46" y="51" text-anchor="middle" font-size="17" font-weight="500" fill="var(--kimi-color-text-primary)" class="num">'+rate+'%</text></svg>';
+  }
+
+  function render(main){
+    var root = document.getElementById('root');
+    var D = main && main.dashboard;
+    if (!D || !D.kpi) { root.innerHTML = '<div class="empty">等待首次数据同步…</div>'; return; }
+    var k = D.kpi, h = '';
+
+    h += '<div class="ar-head fadein"><div class="ar-title">应收账龄看板 · 某连锁健康集团（脱敏演示数据）</div>' +
+      '<div class="ar-meta">基准日 ' + esc(D.as_of) + ' ｜ 应收=未结清出库单未结算金额，关联方/未设账期已剔除</div></div>';
+
+    h += '<div class="kpis fadein">' +
+      '<div class="kpi"><div class="l">外部应收总额</div><div class="v num">'+wan(k.total)+'<small> 万</small></div><div class="s">'+k.bills+' 单 · '+k.customers+' 家</div></div>' +
+      '<div class="kpi"><div class="l">逾期金额</div><div class="v num danger-text">'+wan(k.overdue)+'<small> 万</small></div><div class="s">超结算期限未回款</div></div>' +
+      '<div class="kpi"><div class="l">逾期率</div><div class="v num danger-text">'+k.overdue_rate+'<small> %</small></div><div class="s">逾期 / 应收</div></div>' +
+      '<div class="kpi"><div class="l">365天以上</div><div class="v num warn-text">'+wan(k.bad_365)+'<small> 万</small></div><div class="s">坏账观察区</div></div></div>';
+
+    h += '<div class="fadein"><div class="sect">账龄结构（万元）</div><div class="bars">';
+    var rows = D.companies.map(function(c){ return { name: c, buckets: D.by_company[c].buckets, total: D.by_company[c].total }; });
+    rows.push({ name: '集团合计', buckets: D.group_buckets, total: k.total });
+    var maxT = Math.max.apply(null, rows.map(function(r){ return r.total; }));
+    rows.forEach(function(r){
+      var segs = r.buckets.map(function(v, i){
+        var w = maxT ? (v / maxT * 100) : 0;
+        return '<div class="seg" data-w="'+w+'" style="background:'+bucketColor(i)+'" title="'+D.buckets[i]+' '+wan(v)+' 万"></div>';
+      }).join('');
+      h += '<div class="brow"><div class="name">'+esc(r.name)+'</div><div class="track">'+segs+'</div><div class="amt num">'+wan(r.total)+'</div></div>';
+    });
+    h += '</div><div class="legend">' + D.buckets.map(function(b,i){
+      return '<span><i style="background:'+bucketColor(i)+'"></i>'+b+'</span>'; }).join('') + '</div></div>';
+
+    h += '<div class="fadein"><div class="sect">逾期率</div><div class="gauges">';
+    var g = [['集团', k.overdue_rate]];
+    D.companies.forEach(function(c){ g.push([c, D.by_company[c].overdue_rate]); });
+    g.forEach(function(it){ h += '<div class="gauge">'+gaugeSvg(it[1])+'<div class="gl">'+esc(it[0])+'</div></div>'; });
+    h += '</div></div>';
+
+    var top = (D.customers || []).slice(0, 8);
+    var maxC = top.length ? top[0].total : 1;
+    h += '<div class="fadein"><div class="sect">应收 TOP 客户（万元）</div><div class="clist">';
+    top.forEach(function(c){
+      var dot = c.level === 'red' ? 'd-red' : c.level === 'yellow' ? 'd-yel' : 'd-grn';
+      var col = c.level === 'red' ? 'var(--kimi-color-danger)' : c.level === 'yellow' ? 'var(--kimi-color-warning)' : 'var(--kimi-chart-1)';
+      h += '<div class="crow" title="'+esc(c.name)+'：应收 '+wan(c.total)+' 万，逾期率 '+c.rate+'%，最长逾期 '+c.max_od+' 天，账期 '+esc(c.term)+'，业务员 '+esc(c.emp)+'">' +
+        '<span class="dot '+dot+'"></span>' +
+        '<div class="nm">'+esc(c.name)+'<div class="sub">'+esc(c.company)+' · '+esc(c.emp)+' · 逾期率 '+c.rate+'%</div></div>' +
+        '<div class="ctrack"><div class="cfill" data-w="'+(c.total/maxC*100)+'" style="background:'+col+'"></div></div>' +
+        '<div class="amt num">'+wan(c.total)+'</div></div>';
+    });
+    h += '</div></div>';
+
+    var emps = (D.emps || []).slice(0, 6);
+    h += '<div class="fadein"><div class="sect">业务员应收责任 TOP</div><table><thead><tr>' +
+      '<th>业务员</th><th>账套</th><th class="r">应收(万)</th><th class="r">逾期(万)</th><th class="r">逾期率</th></tr></thead><tbody>';
+    emps.forEach(function(e){
+      var rc = e.rate > 80 ? 'danger-text' : e.rate > 30 ? 'warn-text' : '';
+      h += '<tr><td>'+esc(e.name)+'</td><td>'+esc(e.company)+'</td><td class="r num">'+wan(e.total)+'</td>' +
+        '<td class="r num">'+wan(e.overdue)+'</td><td class="r num '+rc+'">'+e.rate+'%</td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    h += '<div class="foot">已剔除：关联方内部往来 '+wan(k.internal)+' 万；未设账期客户 '+wan(k.zero_term)+' 万（'+D.zero_count+' 家，按 0 元处理）。</div>';
+
+    root.innerHTML = h;
+    var apply = function(){
+      root.querySelectorAll('.seg,.cfill').forEach(function(el){ el.style.width = el.dataset.w + '%'; });
+      root.querySelectorAll('.gauge .arc').forEach(function(el){ el.style.strokeDashoffset = el.dataset.off; });
+    };
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(function(){ requestAnimationFrame(apply); });
+    } else {
+      apply();
+    }
+  }
+
+  var DEMO = {"as_of": "2026-09-20", "kpi": {"total": 24100000, "bills": 583, "customers": 96, "overdue": 5830000, "overdue_rate": 24.2, "bad_365": 1180000, "internal": 3520000, "zero_term": 2140000}, "buckets": ["0-30天", "31-60天", "61-90天", "91-180天", "181-365天", "365天以上"], "companies": ["华东公司", "西南公司", "华南公司"], "by_company": {"华东公司": {"total": 11200000, "overdue_rate": 21.5, "buckets": [5200000, 2800000, 1400000, 900000, 600000, 300000]}, "西南公司": {"total": 8600000, "overdue_rate": 26.8, "buckets": [3600000, 2100000, 1200000, 800000, 500000, 400000]}, "华南公司": {"total": 4300000, "overdue_rate": 27.9, "buckets": [1700000, 900000, 600000, 500000, 320000, 280000]}}, "group_buckets": [10500000, 5800000, 3200000, 2200000, 1420000, 980000], "customers": [{"name": "某连锁医美集团A", "company": "华东公司", "emp": "业务员A", "total": 3200000, "rate": 18.5, "max_od": 45, "term": "月结60天", "level": "green"}, {"name": "某医美机构B", "company": "西南公司", "emp": "业务员B", "total": 2650000, "rate": 42.3, "max_od": 120, "term": "月结30天", "level": "yellow"}, {"name": "某连锁机构C", "company": "华南公司", "emp": "业务员C", "total": 1980000, "rate": 85.6, "max_od": 400, "term": "月结30天", "level": "red"}, {"name": "某医美医院D", "company": "西南公司", "emp": "业务员B", "total": 1720000, "rate": 12.4, "max_od": 25, "term": "月结90天", "level": "green"}, {"name": "某机构客户E", "company": "华东公司", "emp": "业务员A", "total": 1450000, "rate": 55.2, "max_od": 190, "term": "月结60天", "level": "yellow"}, {"name": "某机构客户F", "company": "华南公司", "emp": "业务员C", "total": 1100000, "rate": 8.6, "max_od": 15, "term": "货到付款", "level": "green"}, {"name": "某机构客户G", "company": "华东公司", "emp": "业务员E", "total": 980000, "rate": 91.2, "max_od": 520, "term": "月结30天", "level": "red"}, {"name": "某机构客户H", "company": "西南公司", "emp": "业务员D", "total": 860000, "rate": 33.7, "max_od": 95, "term": "月结60天", "level": "yellow"}], "emps": [{"name": "业务员C", "company": "华南公司", "total": 4300000, "overdue": 1560000, "rate": 36.3}, {"name": "业务员B", "company": "西南公司", "total": 5800000, "overdue": 1480000, "rate": 25.5}, {"name": "业务员A", "company": "华东公司", "total": 6900000, "overdue": 1320000, "rate": 19.1}, {"name": "业务员E", "company": "华东公司", "total": 2800000, "overdue": 890000, "rate": 31.8}, {"name": "业务员D", "company": "西南公司", "total": 2800000, "overdue": 460000, "rate": 16.4}], "zero_count": 12};
+  render({ dashboard: DEMO });
+})();
+</script>
+</body>
+</html>

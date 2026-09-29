@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>刘振源 · AI 应用工程作品集</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:#f5f6f8; color:#1f2329; }
+  .wrap { max-width:960px; margin:0 auto; padding:40px 24px 64px; }
+  header { padding:8px 0 28px; }
+  h1 { font-size:28px; letter-spacing:1px; }
+  .sub { margin-top:8px; color:#646a73; font-size:14px; line-height:1.8; }
+  .badge-row { margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; }
+  .badge { background:#fff; border:1px solid #dee0e3; border-radius:999px; padding:4px 12px; font-size:12px; color:#646a73; }
+  .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:24px 0 36px; }
+  .metric { background:#fff; border:1px solid #dee0e3; border-radius:10px; padding:16px; }
+  .metric .v { font-size:22px; font-weight:600; color:#0e7c86; }
+  .metric .l { font-size:12px; color:#8f959e; margin-top:4px; }
+  h2 { font-size:17px; margin:32px 0 14px; padding-left:10px; border-left:4px solid #0e7c86; }
+  .card { background:#fff; border:1px solid #dee0e3; border-radius:12px; padding:20px; margin-bottom:18px; }
+  .card h3 { font-size:16px; }
+  .card .desc { font-size:13px; color:#646a73; line-height:1.9; margin-top:8px; }
+  .card .tags { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+  .tag { font-size:11px; background:#eef6f7; color:#0e7c86; border-radius:4px; padding:3px 8px; }
+  .card img { width:100%; border:1px solid #eee; border-radius:8px; margin-top:14px; display:block; }
+  .card a.demo { display:inline-block; margin-top:12px; font-size:13px; color:#0e7c86; text-decoration:none; border:1px solid #0e7c86; border-radius:6px; padding:6px 14px; }
+  .card a.demo:hover { background:#0e7c86; color:#fff; }
+  footer { margin-top:36px; font-size:12px; color:#8f959e; line-height:1.8; border-top:1px solid #dee0e3; padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>刘振源 · AI 应用工程作品集</h1>
+  <div class="sub">4 年企业数字化转型实操 ｜ 一线业务出身，独立负责从选型、开发到全员落地的完整闭环<br>
+  18583726610 ｜ lzy1283@gmail.com ｜ 成都</div>
+  <div class="badge-row">
+    <span class="badge">Claude / Codex 辅助开发</span>
+    <span class="badge">提示词工程</span>
+    <span class="badge">企业微信开放能力（机器人 / 智能表格 / API）</span>
+    <span class="badge">低代码平台（伙伴云）</span>
+    <span class="badge">金蝶 API 数据打通</span>
+    <span class="badge">Power BI / Quick BI</span>
+  </div>
+</header>
+
+<div class="metrics">
+  <div class="metric"><div class="v">1 周 → 20 分钟</div><div class="l">经营报表产出耗时（自动化后）</div></div>
+  <div class="metric"><div class="v">2 天 → 20 分钟</div><div class="l">单篇营销内容生产耗时（AI 智能体）</div></div>
+  <div class="metric"><div class="v">4 部门 / 200+ 人</div><div class="l">自动化工具日常覆盖范围与培训规模</div></div>
+  <div class="metric"><div class="v">3 年 100%</div><div class="l">销售数据准确率（系统上线后）</div></div>
+</div>
+
+<h2>作品一 · 经营数据看板（每日自动更新，替代人工报表）</h2>
+
+<div class="card">
+  <h3>销售概览看板</h3>
+  <div class="desc">对接 ERP（金蝶）销售出库数据，每日自动生成：本月/年度销售与毛利 KPI、近 12 个月趋势、分账套表现、TOP 客户与业务员榜单。上线前各部门周报需人工汇总约 1 周，上线后管理层每日自动收到看板推送。</div>
+  <div class="tags"><span class="tag">金蝶 API</span><span class="tag">数据清洗与口径设计</span><span class="tag">每日自动同步</span><span class="tag">管理层推送</span></div>
+  <img src="shot_sales.png" alt="销售概览看板截图">
+  <a class="demo" href="dashboard_sales.html">打开交互演示页 →</a>
+</div>
+
+<div class="card">
+  <h3>应收账龄看板</h3>
+  <div class="desc">按账龄桶展示应收结构，逾期率仪表盘、TOP 欠款客户红黄绿灯预警、业务员应收责任排名。财务与商务部门每日直接使用，替代人工 Excel 对账。</div>
+  <div class="tags"><span class="tag">账龄模型</span><span class="tag">逾期预警</span><span class="tag">责任到人</span></div>
+  <img src="shot_ar.png" alt="应收账龄看板截图">
+  <a class="demo" href="dashboard_ar.html">打开交互演示页 →</a>
+</div>
+<p style="font-size:12px;color:#8f959e;">注：以上为企业真实系统的脱敏演示版本，数据已替换为演示数据，界面与逻辑为本人独立开发。</p>
+
+<h2>作品二 · 企业微信自动化体系（机器人 + 智能表格联动）</h2>
+
+<div class="card">
+  <h3>企业微信机器人 · 每日自动推送</h3>
+  <div class="desc">独立开发企业微信机器人，实现销售数据、邮件、文档的每日自动发送与更新，覆盖销售、市场、财务、商务 4 个部门；打通金蝶数据与企业微信智能表格，业务数据实时更新，信息触达从"人工汇总"升级为"系统自动推送"。</div>
+  <div class="tags"><span class="tag">企业微信开放接口</span><span class="tag">机器人开发</span><span class="tag">智能表格自动化</span><span class="tag">4 部门在用</span></div>
+</div>
+
+<h2>作品三 · AI 智能体（数字员工）</h2>
+
+<div class="card">
+  <h3>营销内容生成智能体</h3>
+  <div class="desc">使用 Claude / Codex 辅助开发，搭建小红书自动生图与文案生成智能体：输入产品要点，自动产出成图与种草文案。累计产出 60 篇内容并投入实际账号运营，单篇内容生产从 2 天缩短至 20 分钟。</div>
+  <div class="tags"><span class="tag">提示词工程</span><span class="tag">Agent 工作流</span><span class="tag">60 篇已实际投放</span><span class="tag">效率提升 99%</span></div>
+</div>
+
+<div class="card">
+  <h3>SFE 销售运营体系与全链路数据看板</h3>
+  <div class="desc">独立完成低代码平台（伙伴云）选型、开发文档、接口标准与系统搭建，建立拜访、销售行为等指标统计机制，补齐销售过程数据缺口；搭建 ERP × SFE 全链路看板，统一呈现销售、达成率与行为数据。</div>
+  <div class="tags"><span class="tag">低代码平台独立交付</span><span class="tag">指标体系设计</span><span class="tag">跨系统数据打通</span></div>
+</div>
+
+<h2>作品四 · 全员培训与推广</h2>
+
+<div class="card">
+  <h3>数字化工具全员培训体系</h3>
+  <div class="desc">设计并执行公司数字化业务全员培训 20+ 场、覆盖 200+ 人，编写操作手册与使用指南，建立内部答疑机制，推动 AI 工具在各业务部门真正落地使用——工具上线不是终点，员工每天用才是。</div>
+  <div class="tags"><span class="tag">培训体系</span><span class="tag">操作手册编写</span><span class="tag">变革推动</span></div>
+</div>
+
+<footer>
+  本作品集所有数据均为脱敏演示数据；所展示系统均为本人在职期间独立负责开发并投入真实业务使用。<br>
+  联系方式：18583726610 ｜ lzy1283@gmail.com
+</footer>
+
+</div>
+</body>
+</html>
